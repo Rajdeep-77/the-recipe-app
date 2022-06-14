@@ -1,3 +1,5 @@
+// This is the example of dependency injection
+//____________This code is for toggling dropdowns, (on click on the button, the dropdown will open, but it can be closed by clicking anywhere)
 import {Directive, ElementRef, HostBinding, HostListener} from '@angular/core';
  
 @Directive({
@@ -10,6 +12,8 @@ export class DropdownDirective {
   }
   constructor(private elRef: ElementRef) {}
 }
+
+//____________This code is for toggling dropdowns, (per clicks on drop-down button, the dropdown will open/close)
 // import { Directive, HostBinding, HostListener } from "@angular/core";
 
 // @Directive({
