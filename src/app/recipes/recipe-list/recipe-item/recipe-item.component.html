@@ -1,9 +1,11 @@
-<a style="cursor: pointer;" class="list-group-item clearfix" (click)="onSelected()">
+<a style="cursor: pointer;" [routerLink]="[index]" class="list-group-item clearfix" >
     <div class="pull-left">
         <h4 class="light-group-item-heading">{{ recipe.name }}</h4>
         <p class="list-group-item-text">{{ recipe.description }}</p>
     </div>
     <span class="pull-right">
+        <!-- in bootstrap v5 "pull-right" is replaced with "float-end" -->
+        <!-- in bootstrap v5 "pull-left" is replaced with "float-start" -->
         <img [src]="recipe.imagePath" alt="{{ recipe.name }}" class="img-responsive" style="max-height: 50px;">
     </span>
 </a>
