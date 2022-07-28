@@ -1,8 +1,10 @@
 import { NgForOf } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, ComponentFactoryResolver, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
+import { AlertComponent } from 'src/app/shared/alert/alert.component';
+import { PlaceholderDirective } from 'src/app/shared/placeholder/placeholder.directive';
 import { AuthResponseData, AuthServiceService } from '../auth-service.service';
 
 @Component({
@@ -10,16 +12,27 @@ import { AuthResponseData, AuthServiceService } from '../auth-service.service';
   templateUrl: './authentication.component.html',
   styleUrls: ['./authentication.component.css']
 })
-export class AuthenticationComponent implements OnInit {
+export class AuthenticationComponent implements OnInit, OnDestroy {
 
-  constructor( private authService:AuthServiceService, private router:Router) { }
+  private closeSub:Subscription;
 
-  ngOnInit(): void {
+  constructor( private authService:AuthServiceService, 
+               private router:Router,
+               private cfr:ComponentFactoryResolver) { }
+
+  ngOnInit() {
+  }
+
+  ngOnDestroy(){
+          if(this.closeSub){
+            this.closeSub.unsubscribe();
+          }  
   }
 
   isLoginMode:boolean = true;
   isLoading:boolean = false;
   error:string = null;
+  @ViewChild(PlaceholderDirective) alertHost:PlaceholderDirective;
 
   // This function changes mode login/signup
   onSwitchMode(){
@@ -28,6 +41,22 @@ export class AuthenticationComponent implements OnInit {
 
   onHandleError(){
     this.error = null;
+  }
+
+  private showErrorAlert(msg:string){
+    // const alertCmp = new AlertComponent();
+    const alertCmpFactory = this.cfr.resolveComponentFactory(AlertComponent);
+    const hostViewContainerRef = this.alertHost.viewContainerRef;
+
+    hostViewContainerRef.clear();
+
+    const componentRef = hostViewContainerRef.createComponent(alertCmpFactory);
+
+    componentRef.instance.message = msg;
+    this.closeSub = componentRef.instance.close.subscribe( () => {
+      this.closeSub.unsubscribe();
+      hostViewContainerRef.clear();
+    } );
   }
 
   // This function submits the form data
@@ -60,6 +89,7 @@ export class AuthenticationComponent implements OnInit {
                       , errorMessage => {
                                     console.log(errorMessage); 
                                     this.error = errorMessage;
+                                    this.showErrorAlert(errorMessage);
                                     this.isLoading = false; 
                                   });
     
